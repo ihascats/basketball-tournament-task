@@ -71,6 +71,23 @@ function groupsToTeams(groups) {
 
 //console.log(groups["A"]);
 console.log(groupsToTeams(groups));
+//  "CAN": {
+//    "Team": "Kanada",
+//    "ISOCode": "CAN",
+//    "FIBARanking": 7
+//    "Modifiers" : {
+//      Exibition : {} add results from new matches | if its already included get avg of the two.
+//      Ranking : int
+//    }
+//    "Scores" : {
+//      groupPhase : int
+//      hatPhase : int
+//      eliminationPhase : int
+//      quarterFinals : int
+//      semiFinals : int
+//      finals : int
+//    }
+//  },
 //individualGroupPhase(groups["A"])
 // console.log(exibitionModifier(exibitions));
 // console.log(rollScore(5, 20));

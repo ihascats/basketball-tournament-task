@@ -167,6 +167,17 @@ function applyModifiers(team, score, opponentISO) {
 }
 
 function oneGame(team1, team2) {
+  let teamOne;
+  let teamTwo;
+
+  if (team1['FIBARanking'] < team2['FIBARanking']) {
+    teamOne = team1;
+    teamTwo = team2;
+  } else {
+    teamOne = team2;
+    teamTwo = team1;
+  }
+
   const minimumRollValue = 4;
   const maximumRollValue = 20;
   const rollTimes = 10;
@@ -180,124 +191,60 @@ function oneGame(team1, team2) {
     true,
   );
 
-  // team1's score is scoreWithAdvantage
-  if (team1['FIBARanking'] < team2['FIBARanking']) {
-    let modifiedScoreWithAdvantage = applyModifiers(
-      team1,
-      scoreWithAdvantage,
-      team2['ISOCode'],
-    );
-    let modifiedScore = applyModifiers(team2, score, team1['ISOCode']);
-    while (modifiedScoreWithAdvantage == modifiedScore) {
-      modifiedScore += Math.floor(Math.random() * 20) + 1;
-      modifiedScoreWithAdvantage += Math.floor(Math.random() * 20) + 1;
-    }
-    if (modifiedScoreWithAdvantage > modifiedScore) {
-      assignMatchPoints(
-        team1,
-        2,
-        modifiedScoreWithAdvantage,
-        modifiedScore,
-        team2['ISOCode'],
-      );
-      // if score difference more than 50, count as surrender
-      assignMatchPoints(
-        team2,
-        modifiedScoreWithAdvantage - modifiedScore > surrenderWhenGap ? 0 : 1,
-        modifiedScore,
-        modifiedScoreWithAdvantage,
-        team1['ISOCode'],
-      );
-    } else {
-      assignMatchPoints(
-        team2,
-        2,
-        modifiedScore,
-        modifiedScoreWithAdvantage,
-        team1['ISOCode'],
-      );
-      // if score difference more than 50, count as surrender
-      assignMatchPoints(
-        team1,
-        modifiedScoreWithAdvantage - modifiedScore > surrenderWhenGap ? 0 : 1,
-        modifiedScoreWithAdvantage,
-        modifiedScore,
-        team2['ISOCode'],
-      );
-    }
-    return (
-      `${team1['ISOCode']}` +
-      ` ${modifiedScoreWithAdvantage}` +
-      ' ----- ' +
-      `${team2['ISOCode']}` +
-      ` ${modifiedScore}` +
-      ' ----- ' +
-      `${
-        modifiedScoreWithAdvantage > modifiedScore
-          ? `${team1['Team']}`
-          : `${team2['Team']}`
-      }` +
-      ' WON'
-    );
-  }
-
-  // team2's score is scoreWithAdvantage
   let modifiedScoreWithAdvantage = applyModifiers(
-    team2,
+    teamOne,
     scoreWithAdvantage,
-    team1['ISOCode'],
+    teamTwo['ISOCode'],
   );
-  let modifiedScore = applyModifiers(team1, score, team2['ISOCode']);
+  let modifiedScore = applyModifiers(teamTwo, score, teamOne['ISOCode']);
   while (modifiedScoreWithAdvantage == modifiedScore) {
     modifiedScore += Math.floor(Math.random() * 20) + 1;
     modifiedScoreWithAdvantage += Math.floor(Math.random() * 20) + 1;
   }
   if (modifiedScoreWithAdvantage > modifiedScore) {
-    // Team2 scored more points
     assignMatchPoints(
-      team2,
+      teamOne,
       2,
       modifiedScoreWithAdvantage,
       modifiedScore,
-      team1['ISOCode'],
+      teamTwo['ISOCode'],
     );
     // if score difference more than 50, count as surrender
     assignMatchPoints(
-      team1,
+      teamTwo,
       modifiedScoreWithAdvantage - modifiedScore > surrenderWhenGap ? 0 : 1,
       modifiedScore,
       modifiedScoreWithAdvantage,
-      team2['ISOCode'],
+      teamOne['ISOCode'],
     );
   } else {
-    // Team1 scored more points
     assignMatchPoints(
-      team1,
+      teamTwo,
       2,
       modifiedScore,
       modifiedScoreWithAdvantage,
-      team2['ISOCode'],
+      teamOne['ISOCode'],
     );
     // if score difference more than 50, count as surrender
     assignMatchPoints(
-      team2,
-      modifiedScore - modifiedScoreWithAdvantage > surrenderWhenGap ? 0 : 1,
+      teamOne,
+      modifiedScoreWithAdvantage - modifiedScore > surrenderWhenGap ? 0 : 1,
       modifiedScoreWithAdvantage,
       modifiedScore,
-      team1['ISOCode'],
+      teamTwo['ISOCode'],
     );
   }
   return (
-    `${team1['ISOCode']}` +
-    ` ${modifiedScore}` +
-    ' ----- ' +
-    `${team2['ISOCode']}` +
+    `${teamOne['ISOCode']}` +
     ` ${modifiedScoreWithAdvantage}` +
     ' ----- ' +
+    `${teamTwo['ISOCode']}` +
+    ` ${modifiedScore}` +
+    ' ----- ' +
     `${
-      modifiedScoreWithAdvantage < modifiedScore
-        ? `${team1['Team']}`
-        : `${team2['Team']}`
+      modifiedScoreWithAdvantage > modifiedScore
+        ? `${teamOne['Team']}`
+        : `${teamTwo['Team']}`
     }` +
     ' WON'
   );
@@ -317,10 +264,12 @@ function getGroupPhase(groups) {
 
 function groupPhase(groups, teams) {
   Object.keys(groups).forEach((groupName) => {
+    console.log('Group' + groupName);
     for (let i = 0; i < groups[groupName].length; i++) {
       for (let j = i + 1; j < groups[groupName].length; j++) {
         console.log(
-          oneGame(teams[groups[groupName][i]], teams[groups[groupName][j]]),
+          '       ' +
+            oneGame(teams[groups[groupName][i]], teams[groups[groupName][j]]),
         );
       }
     }

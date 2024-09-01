@@ -235,18 +235,10 @@ function oneGame(team1, team2) {
     );
   }
   return (
-    `${teamOne['ISOCode']}` +
-    ` ${modifiedScoreWithAdvantage}` +
-    ' ----- ' +
-    `${teamTwo['ISOCode']}` +
-    ` ${modifiedScore}` +
-    ' ----- ' +
-    `${
-      modifiedScoreWithAdvantage > modifiedScore
-        ? `${teamOne['Team']}`
-        : `${teamTwo['Team']}`
-    }` +
-    ' WON'
+    `${teamOne['Team'].length > 12 ? teamOne['ISOCode'] : teamOne['Team']}` +
+    ' - ' +
+    `${teamTwo['Team'].length > 10 ? teamTwo['ISOCode'] : teamTwo['Team']}` +
+    ` (${modifiedScoreWithAdvantage}-${modifiedScore})`
   );
 }
 

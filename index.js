@@ -355,6 +355,51 @@ function sortGroupResults(groups) {
   });
 }
 
+function shuffleArray(array) {
+  // Simple function to shuffle an array (Fisher-Yates shuffle)
+  for (let i = array.length - 1; i > 0; i--) {
+    const j = Math.floor(Math.random() * (i + 1));
+    [array[i], array[j]] = [array[j], array[i]];
+  }
+}
+
+function pairTeams(potA, potB) {
+  shuffleArray(potA);
+  shuffleArray(potB);
+
+  let pairs = [];
+  let unmatchedTeams = [];
+
+  potA.forEach((teamA) => {
+    let matched = false;
+
+    for (let i = 0; i < potB.length; i++) {
+      let teamB = potB[i];
+
+      // Check if teams have met before
+      if (!teamA['Modifiers'].hasOwnProperty(teamB['ISOCode'])) {
+        pairs.push([teamA, teamB]);
+        potB.splice(i, 1); // Remove the matched teamB from potB
+        matched = true;
+        break;
+      }
+    }
+
+    if (!matched) {
+      unmatchedTeams.push(teamA);
+    }
+  });
+
+  // Handle unmatched teams (if any)
+  if (unmatchedTeams.length > 0) {
+    unmatchedTeams.forEach((team) => {
+      pairs.push([team, potB.shift()]);
+    });
+  }
+
+  return pairs;
+}
+
 function sortTeamsForPots(pot) {
   pot.forEach(() => {
     pot.sort((a, b) => {
@@ -382,7 +427,6 @@ function sortPots(groups) {
   Object.keys(groups).forEach((groupName) => {
     let i = 0;
     Object.keys(groups[groupName]).forEach((team) => {
-      // console.log(Object.keys(team).length);
       if (i === 3) {
         return;
       }
@@ -398,7 +442,6 @@ function sortPots(groups) {
       i++;
     });
   });
-  // console.log(rank1);
   sortTeamsForPots(rank1);
   sortTeamsForPots(rank2);
   sortTeamsForPots(rank3);
@@ -416,6 +459,34 @@ function sortPots(groups) {
       console.log(`    ${team['Team']}`);
     });
   });
+  let pairsDG = pairTeams(potGroups['D'], potGroups['G']);
+  let pairsEF = pairTeams(potGroups['E'], potGroups['F']);
+
+  return [pairsDG, pairsEF];
+}
+
+function endGame(pots) {
+  let pairsDG = pots[0];
+  let pairsEF = pots[1];
+  console.log('\nEliminaciona faza:');
+  pairsDG.forEach((team) => {
+    console.log('  ' + team[0]['Team'] + ' - ' + team[1]['Team']);
+  });
+  console.log('');
+  pairsEF.forEach((team) => {
+    console.log('  ' + team[0]['Team'] + ' - ' + team[1]['Team']);
+  });
+
+  let quarterfinalResults = [];
+  console.log('\nČetvrtfinale:');
+  pairsDG.forEach((team) => {
+    quarterfinalResults.push(oneGame(team[0], team[1]));
+  });
+  console.log('');
+  pairsEF.forEach((team) => {
+    quarterfinalResults.push(oneGame(team[0], team[1]));
+  });
+  console.log(quarterfinalResults);
 }
 
 function centerText(text, width) {
@@ -483,7 +554,7 @@ exibitionModifier(exibitions, teams);
 groupPhase(getGroupPhase(groups), teams);
 sortGroupResults(groups);
 printGroupResults(groups);
-let pots = sortPots(groups);
+endGame(sortPots(groups));
 
 // console.log(groups);
 // console.log(groups);

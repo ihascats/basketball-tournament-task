@@ -248,12 +248,12 @@ function oneGame(team1, team2) {
     }
   }
   console.log(
-    `    ${
+    `        ${
       teamOne['Team'].length > 12 ? teamOne['ISOCode'] : teamOne['Team']
     }` +
       ' - ' +
       `${teamTwo['Team'].length > 12 ? teamTwo['ISOCode'] : teamTwo['Team']}` +
-      ` (${modifiedScoreWithAdvantage} : ${modifiedScore})`,
+      ` (${modifiedScoreWithAdvantage}:${modifiedScore})`,
   );
   return matchResult;
 }
@@ -271,20 +271,10 @@ function getGroupPhase(groups) {
 }
 
 function groupPhase(groups, teams) {
-  // Object.keys(groups).forEach((groupName) => {
-  //   console.log("   Group " + groupName)
-  //   for(let i = 0; i < groups[groupName].length; i++){
-  //     for (let j = i + 1; j < groups[groupName].length; j++) {
-  //       console.log("    "+oneGame(teams[groups[groupName][i]], teams[groups[groupName][j]]));
-  //     }
-  //   }
-  // });
-  // Have initial matches
-
   let matchResultTracker = {};
-  console.log('Grupna faza - I kolo:');
+  console.log('\nGrupna faza - I kolo:');
   Object.keys(groups).forEach((groupName) => {
-    console.log('  Group ' + groupName);
+    console.log('   Groupa ' + groupName + ':');
     matchResultTracker[groupName] = [];
     for (let i = 0; i < groups[groupName].length; i += 2) {
       matchResultTracker[groupName].push(
@@ -292,9 +282,9 @@ function groupPhase(groups, teams) {
       );
     }
   });
-  console.log('Grupna faza - II kolo:');
+  console.log('\nGrupna faza - II kolo:');
   Object.keys(matchResultTracker).forEach((groupName) => {
-    console.log('  Group ' + groupName);
+    console.log('   Groupa ' + groupName + ':');
     // pick winners to play against winners and losers against losers from first round
     oneGame(
       teams[matchResultTracker[groupName][0][0]],
@@ -305,9 +295,9 @@ function groupPhase(groups, teams) {
       teams[matchResultTracker[groupName][1][1]],
     );
   });
-  console.log('Grupna faza - III kolo:');
+  console.log('\nGrupna faza - III kolo:');
   Object.keys(matchResultTracker).forEach((groupName) => {
-    console.log('  Group ' + groupName);
+    console.log('   Groupa ' + groupName + ':');
     // now pick winners from first round to play against losers from first round
     oneGame(
       teams[matchResultTracker[groupName][0][0]],

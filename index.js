@@ -20,7 +20,7 @@ function exibitionModifier(obj, teams) {
     for (let j = 0; j < exibitionSize; j++) {
       let matchResult = results[j]['Result'];
       let [num1, num2] = matchResult.split('-').map(Number);
-      let mod = num1 / num2;
+      let mod = (num1 / num2 - 1) * 0.5 + 1;
       if (mod > 1) {
         // Ensure `mods[team]` is initialized if not already
         if (!mods[team]) {
@@ -151,17 +151,29 @@ function assignMatchPoints(
 
   if (newPoints == 2) {
     Object.assign(team['Modifiers'], {
-      [opponentISO]: scoredAtEnemy / enemyScored,
+      [opponentISO]: (scoredAtEnemy / enemyScored - 1) * 0.5 + 1,
     });
   }
   console.log(team);
+}
+
+function applyModifiers(team, score, opponentISO) {
+  let modifier = 1;
+  modifier *= team['Modifiers']['Ranking'];
+  Object.keys(team['Modifiers']).forEach((key) => {
+    if (key == opponentISO) {
+      modifier *= team['Modifiers'][key];
+    }
+  });
+  console.log(score, Math.ceil(score * modifier));
+  return Math.ceil(score * modifier);
 }
 
 function oneGame(team1, team2) {
   const minimumRollValue = 4;
   const maximumRollValue = 20;
   const rollTimes = 10;
-  const surrenderValue = 50;
+  const surrenderWhenGap = 50;
 
   let score = rollScore(minimumRollValue, maximumRollValue, rollTimes, false);
   let scoreWithAdvantage = rollScore(
@@ -178,50 +190,116 @@ function oneGame(team1, team2) {
   }
   // team1's score is scoreWithAdvantage
   if (team1['FIBARanking'] < team2['FIBARanking']) {
-    if (scoreWithAdvantage > score) {
-      assignMatchPoints(team1, 2, scoreWithAdvantage, score, team2['ISOCode']);
+    let modifiedScoreWithAdvantage = applyModifiers(
+      team1,
+      scoreWithAdvantage,
+      team2['ISOCode'],
+    );
+    let modifiedScore = applyModifiers(team2, score, team1['ISOCode']);
+
+    if (modifiedScoreWithAdvantage > modifiedScore) {
+      assignMatchPoints(
+        team1,
+        2,
+        modifiedScoreWithAdvantage,
+        modifiedScore,
+        team2['ISOCode'],
+      );
       // if score difference more than 50, count as surrender
       assignMatchPoints(
         team2,
-        scoreWithAdvantage - score > surrenderValue ? 0 : 1,
-        score,
-        scoreWithAdvantage,
+        modifiedScoreWithAdvantage - modifiedScore > surrenderWhenGap ? 0 : 1,
+        modifiedScore,
+        modifiedScoreWithAdvantage,
         team1['ISOCode'],
+      );
+    } else {
+      assignMatchPoints(
+        team2,
+        2,
+        modifiedScore,
+        modifiedScoreWithAdvantage,
+        team1['ISOCode'],
+      );
+      // if score difference more than 50, count as surrender
+      assignMatchPoints(
+        team1,
+        modifiedScoreWithAdvantage - modifiedScore > surrenderWhenGap ? 0 : 1,
+        modifiedScoreWithAdvantage,
+        modifiedScore,
+        team2['ISOCode'],
       );
     }
     return (
       `${team1['ISOCode']}` +
-      ` ${scoreWithAdvantage}` +
+      ` ${modifiedScoreWithAdvantage}` +
       ' ----- ' +
       `${team2['ISOCode']}` +
-      ` ${score}` +
+      ` ${modifiedScore}` +
       ' ----- ' +
       `${
-        scoreWithAdvantage > score ? `${team1['Team']}` : `${team2['Team']}`
+        modifiedScoreWithAdvantage > modifiedScore
+          ? `${team1['Team']}`
+          : `${team2['Team']}`
       }` +
       ' WON'
     );
   }
+
   // team2's score is scoreWithAdvantage
-  if (scoreWithAdvantage > score) {
-    assignMatchPoints(team2, 2, scoreWithAdvantage, score, team1['ISOCode']);
+  let modifiedScoreWithAdvantage = applyModifiers(
+    team2,
+    scoreWithAdvantage,
+    team1['ISOCode'],
+  );
+  let modifiedScore = applyModifiers(team1, score, team2['ISOCode']);
+  if (modifiedScoreWithAdvantage > modifiedScore) {
+    // Team2 scored more points
+    assignMatchPoints(
+      team2,
+      2,
+      modifiedScoreWithAdvantage,
+      modifiedScore,
+      team1['ISOCode'],
+    );
     // if score difference more than 50, count as surrender
     assignMatchPoints(
       team1,
-      scoreWithAdvantage - score > surrenderValue ? 0 : 1,
-      score,
-      scoreWithAdvantage,
+      modifiedScoreWithAdvantage - modifiedScore > surrenderWhenGap ? 0 : 1,
+      modifiedScore,
+      modifiedScoreWithAdvantage,
       team2['ISOCode'],
+    );
+  } else {
+    // Team1 scored more points
+    assignMatchPoints(
+      team1,
+      2,
+      modifiedScore,
+      modifiedScoreWithAdvantage,
+      team2['ISOCode'],
+    );
+    // if score difference more than 50, count as surrender
+    assignMatchPoints(
+      team2,
+      modifiedScore - modifiedScoreWithAdvantage > surrenderWhenGap ? 0 : 1,
+      modifiedScore,
+      modifiedScoreWithAdvantage,
+      team1['ISOCode'],
     );
   }
   return (
     `${team1['ISOCode']}` +
-    ` ${score}` +
+    ` ${modifiedScore}` +
     ' ----- ' +
     `${team2['ISOCode']}` +
-    ` ${scoreWithAdvantage}` +
+    ` ${modifiedScoreWithAdvantage}` +
     ' ----- ' +
-    `${scoreWithAdvantage < score ? `${team1['Team']}` : `${team2['Team']}`}` +
+    `${
+      modifiedScoreWithAdvantage < modifiedScore
+        ? `${team1['Team']}`
+        : `${team2['Team']}`
+    }` +
     ' WON'
   );
 }

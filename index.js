@@ -70,15 +70,6 @@ function rollScore(
   return rollSum;
 }
 
-function individualGroupPhase(groups) {
-  let size = groups.length;
-  for (let i = 0; i < size; i++) {
-    for (let j = i + 1; j < size; j++) {
-      console.log(`${i}` + `${j}`);
-    }
-  }
-}
-
 function groupsToTeams(groups) {
   let teams = {};
   Object.keys(groups).forEach((key) => {
@@ -174,7 +165,6 @@ function applyModifiers(team, score, opponentISO) {
       modifier *= team['Modifiers'][key];
     }
   });
-  console.log(score, Math.ceil(score * modifier));
   return Math.ceil(score * modifier);
 }
 
@@ -314,6 +304,30 @@ function oneGame(team1, team2) {
     ' WON'
   );
 }
+
+function getGroupPhase(groups) {
+  let sortedGroups = {};
+  Object.keys(groups).forEach((group) => {
+    let teamsArray = [];
+    groups[group].forEach((team) => {
+      teamsArray.push(team['ISOCode']);
+    });
+    sortedGroups[group] = teamsArray;
+  });
+  console.log(sortedGroups);
+}
+
+function individualGroupPhase(groups) {
+  let size = groups.length;
+  for (let i = 0; i < size; i++) {
+    for (let j = i + 1; j < size; j++) {
+      console.log(`${i}` + `${j}`);
+    }
+  }
+}
+
+getGroupPhase(groups);
+
 //console.log(groups["A"]);
 teamRankingModifier(teams);
 //  "CAN": {

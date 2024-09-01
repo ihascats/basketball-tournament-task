@@ -22,28 +22,21 @@ function exibitionModifier(obj) {
       let [num1, num2] = matchResult.split('-').map(Number);
       let mod = num1 / num2;
       if (mod > 1) {
-        mods[team][results[j]['Opponent']] = {
-          mod,
-        };
+        // Ensure `mods[team]` is initialized if not already
+        if (!mods[team]) {
+          mods[team] = {};
+        }
+
+        // Add or update the opponent's mod value
+        mods[team][results[j]['Opponent']] = mod;
       }
     }
     //-------------
 
     // delete empty objects
-    Object.keys(mods).forEach((team) => {
-      // Check if the team has any valid modifiers
-      let hasValidModifiers = false;
-
-      // Check each opponent for the 'mod' property
-      Object.keys(mods[team]).forEach((opponent) => {
-        if (mods[team][opponent] && mods[team][opponent]['mod']) {
-          hasValidModifiers = true;
-        }
-      });
-
-      // If no valid modifiers are found, delete the team
-      if (!hasValidModifiers) {
-        delete mods[team];
+    Object.keys(mods).forEach((key) => {
+      if (Object.keys(mods[key]).length < 1) {
+        delete mods[key];
       }
     });
     //-------------
@@ -126,3 +119,6 @@ teamRankingModifier(teams);
 //individualGroupPhase(groups["A"])
 console.log(exibitionModifier(exibitions));
 // console.log(rollScore(5, 20));
+
+// (oppScore * exibMod - oppScore) + score = exibModScore
+// exibModScore * rankMod = finalMatchScore

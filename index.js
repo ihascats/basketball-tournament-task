@@ -154,6 +154,9 @@ function assignMatchPoints(
       [opponentISO]: (scoredAtEnemy / enemyScored - 1) * 0.5 + 1,
     });
   }
+  if (newPoints < 2) {
+    Object.assign(team['Modifiers'], { [opponentISO]: 1 });
+  }
   console.log(team);
 }
 
@@ -347,3 +350,4 @@ console.log(oneGame(teams['CAN'], teams['SRB']));
 //   }
 //   return advantageCheck / 100
 // }
+//

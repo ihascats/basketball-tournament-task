@@ -4,12 +4,12 @@ const fs = require('fs');
 const exibitions = JSON.parse(fs.readFileSync('exibitions.json', 'utf-8'));
 const groups = JSON.parse(fs.readFileSync('groups.json', 'utf-8'));
 
-function setModifier(obj) {
+function exibitionModifier(obj) {
   // ---------------
-  const exibitionsObject = obj;
+  const exibitionsObject = obj; // needs to be a deep copy
   const size = Object.keys(exibitionsObject).length;
   let mods = {};
-  // --------------
+  // ---------------
   for (let i = 0; i < size; i++) {
     let team = Object.keys(exibitionsObject)[i];
     let results = exibitionsObject[Object.keys(exibitionsObject)[i]];
@@ -39,5 +39,15 @@ function setModifier(obj) {
   return mods;
 }
 
+function rollScore(maxRoll = int, advantage = false) {
+  if (advantage) {
+    let roll1 = Math.floor(Math.random() * maxRoll) + 1;
+    let roll2 = Math.floor(Math.random() * maxRoll) + 1;
+    return Math.max(roll1, roll2);
+  }
+  return Math.floor(Math.random() * maxRoll) + 1;
+}
+
 console.log(groups['A'][0]);
-console.log(setModifier(exibitions));
+console.log(exibitionModifier(exibitions));
+console.log(rollScore(20));

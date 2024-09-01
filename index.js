@@ -56,15 +56,16 @@ function rollScore(
   let rollSum = 0;
   let advantage = false;
   if (advantageChance) {
-    advantage = Math.random() >= 0.9 ? true : false;
+    advantage = Math.random() >= 0.75 ? true : false;
   }
   for (let i = 0; i < rolls; i++) {
     if (advantage) {
       let roll1 = Math.floor(Math.random() * maxRoll) + minRoll;
       let roll2 = Math.floor(Math.random() * maxRoll) + minRoll;
       rollSum += Math.max(roll1, roll2);
+    } else {
+      rollSum += Math.floor(Math.random() * maxRoll) + minRoll;
     }
-    rollSum += Math.floor(Math.random() * maxRoll) + 1;
   }
   return rollSum;
 }
@@ -145,3 +146,13 @@ console.log(teams);
 // const maxRollValue
 // const rollTimes
 // rollScore(4, 20, 10, false)
+
+// function checkAdvantageChance(){
+//   let advantageCheck = 0
+//   for (let m = 0 ; m < 10000 ; m++) {
+//     if(oneGame(teams["CAN"], teams["SRB"])){
+//       advantageCheck++
+//     }
+//   }
+//   return advantageCheck / 100
+// }

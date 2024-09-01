@@ -4,7 +4,7 @@ const fs = require('fs');
 const exibitions = JSON.parse(fs.readFileSync('exibitions.json', 'utf-8'));
 const groups = JSON.parse(fs.readFileSync('groups.json', 'utf-8'));
 
-function exibitionModifier(obj) {
+function exibitionModifier(obj, teams) {
   // ---------------
   const exibitionsObject = obj; // needs to be a deep copy
   const size = Object.keys(exibitionsObject).length;
@@ -41,6 +41,9 @@ function exibitionModifier(obj) {
     });
     //-------------
   }
+  Object.keys(mods).forEach((key) => {
+    Object.assign(teams[key]['Modifiers'], mods[key]);
+  });
   return mods;
 }
 
@@ -98,7 +101,6 @@ function teamRankingModifier(teams) {
 }
 //console.log(groups["A"]);
 teamRankingModifier(teams);
-//console.log(teams);
 //  "CAN": {
 //    "Team": "Kanada",
 //    "ISOCode": "CAN",
@@ -117,7 +119,8 @@ teamRankingModifier(teams);
 //    }
 //  },
 //individualGroupPhase(groups["A"])
-console.log(exibitionModifier(exibitions));
+console.log(exibitionModifier(exibitions, teams));
+console.log(teams);
 // console.log(rollScore(5, 20));
 
 // (oppScore * exibMod - oppScore) + score = exibModScore

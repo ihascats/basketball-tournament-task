@@ -20,7 +20,7 @@ function exibitionModifier(obj, teams) {
     for (let j = 0; j < exibitionSize; j++) {
       let matchResult = results[j]['Result'];
       let [num1, num2] = matchResult.split('-').map(Number);
-      let mod = (num1 / num2 - 1) * 0.5 + 1;
+      let mod = (num1 / num2 + 1) * 0.5;
       if (mod > 1) {
         // Ensure `mods[team]` is initialized if not already
         if (!mods[team]) {
@@ -150,8 +150,14 @@ function assignMatchPoints(
   team['ScoreDifference'] = prevScoreDifference + (scoredAtEnemy - enemyScored);
 
   if (newPoints == 2) {
+    if (team['Modifiers'][opponentISO]) {
+      let prevMod = team['Modifiers'][opponentISO];
+      Object.assign(team['Modifiers'], {
+        [opponentISO]: (scoredAtEnemy / enemyScored + prevMod) * 0.5,
+      });
+    }
     Object.assign(team['Modifiers'], {
-      [opponentISO]: (scoredAtEnemy / enemyScored - 1) * 0.5 + 1,
+      [opponentISO]: (scoredAtEnemy / enemyScored + 1) * 0.5,
     });
   }
   if (newPoints < 2) {

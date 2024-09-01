@@ -39,15 +39,25 @@ function exibitionModifier(obj) {
   return mods;
 }
 
-function rollScore(maxRoll = int, advantage = false) {
+function rollScore(minRoll = 1, maxRoll = int, advantage = false) {
   if (advantage) {
-    let roll1 = Math.floor(Math.random() * maxRoll) + 1;
-    let roll2 = Math.floor(Math.random() * maxRoll) + 1;
+    let roll1 = Math.floor(Math.random() * maxRoll) + minRoll;
+    let roll2 = Math.floor(Math.random() * maxRoll) + minRoll;
     return Math.max(roll1, roll2);
   }
   return Math.floor(Math.random() * maxRoll) + 1;
 }
 
-console.log(groups['A'][0]);
-console.log(exibitionModifier(exibitions));
-console.log(rollScore(20));
+function individualGroupPhase(groups) {
+  let size = groups.length;
+  for (let i = 0; i < size; i++) {
+    for (let j = i + 1; j < size; j++) {
+      console.log(`${i}` + `${j}`);
+    }
+  }
+}
+
+console.log(groups['A']);
+individualGroupPhase(groups['A']);
+// console.log(exibitionModifier(exibitions));
+// console.log(rollScore(5, 20));

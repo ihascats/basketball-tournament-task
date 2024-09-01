@@ -180,7 +180,7 @@ function oneGame(team1, team2) {
 
   const minimumRollValue = 4;
   const maximumRollValue = 20;
-  const rollTimes = 10;
+  const rollTimes = 5;
   const surrenderWhenGap = 50;
 
   let score = rollScore(minimumRollValue, maximumRollValue, rollTimes, false);
@@ -238,7 +238,7 @@ function oneGame(team1, team2) {
     `${teamOne['Team'].length > 12 ? teamOne['ISOCode'] : teamOne['Team']}` +
     ' - ' +
     `${teamTwo['Team'].length > 10 ? teamTwo['ISOCode'] : teamTwo['Team']}` +
-    ` (${modifiedScoreWithAdvantage}-${modifiedScore})`
+    ` (${modifiedScoreWithAdvantage} : ${modifiedScore})`
   );
 }
 
@@ -256,11 +256,11 @@ function getGroupPhase(groups) {
 
 function groupPhase(groups, teams) {
   Object.keys(groups).forEach((groupName) => {
-    console.log('Group' + groupName);
+    console.log('   Group ' + groupName);
     for (let i = 0; i < groups[groupName].length; i++) {
       for (let j = i + 1; j < groups[groupName].length; j++) {
         console.log(
-          '       ' +
+          '    ' +
             oneGame(teams[groups[groupName][i]], teams[groups[groupName][j]]),
         );
       }

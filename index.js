@@ -286,8 +286,8 @@ function oneGame(team1, team2) {
     assignMatchPoints(
       team2,
       modifiedScore - modifiedScoreWithAdvantage > surrenderWhenGap ? 0 : 1,
-      modifiedScore,
       modifiedScoreWithAdvantage,
+      modifiedScore,
       team1['ISOCode'],
     );
   }

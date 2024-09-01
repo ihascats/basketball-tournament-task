@@ -84,6 +84,12 @@ function groupsToTeams(groups) {
   Object.keys(groups).forEach((key) => {
     groups[key].forEach((team) => {
       const ISOCode = team['ISOCode'];
+      team['Wins'] = 0;
+      team['Losses'] = 0;
+      team['Points'] = 0;
+      team['Scored'] = 0;
+      team['OpponentScored'] = 0;
+      team['ScoreDifference'] = 0;
       teams[ISOCode] = team;
     });
   });
@@ -114,10 +120,49 @@ function teamRankingModifier(teams) {
   });
 }
 
+function assignMatchPoints(
+  team,
+  newPoints,
+  scoredAtEnemy,
+  enemyScored,
+  opponentISO,
+) {
+  // Add point to the losses or wins
+  if (newPoints < 2) {
+    let prevLosses = team['Losses'];
+    team['Losses'] = prevLosses + 1;
+  } else {
+    let prevWins = team['Wins'];
+    team['Wins'] = prevWins + 1;
+  }
+
+  // add Points
+  let prevPoints = team['Points'];
+  team['Points'] = prevPoints + newPoints;
+
+  let prevScored = team['Scored'];
+  team['Scored'] = prevScored + scoredAtEnemy;
+
+  let prevOpponentScored = team['OpponentScored'];
+  team['OpponentScored'] = prevOpponentScored + enemyScored;
+
+  let prevScoreDifference = team['ScoreDifference'];
+  team['ScoreDifference'] = prevScoreDifference + (scoredAtEnemy - enemyScored);
+
+  if (newPoints == 2) {
+    Object.assign(team['Modifiers'], {
+      [opponentISO]: scoredAtEnemy / enemyScored,
+    });
+  }
+  console.log(team);
+}
+
 function oneGame(team1, team2) {
   const minimumRollValue = 4;
   const maximumRollValue = 20;
   const rollTimes = 10;
+  const surrenderValue = 50;
+
   let score = rollScore(minimumRollValue, maximumRollValue, rollTimes, false);
   let scoreWithAdvantage = rollScore(
     minimumRollValue,
@@ -125,19 +170,25 @@ function oneGame(team1, team2) {
     rollTimes,
     true,
   );
-  // return scoreWithAdvantage > score;
-  if (scoreWithAdvantage == score) {
-    return (
-      `${team1['ISOCode']}` +
-      ` ${scoreWithAdvantage}` +
-      ' ----- ' +
-      `${team2['ISOCode']}` +
-      ` ${score}` +
-      ' ----- ' +
-      ' DRAW'
-    );
+
+  // if draw
+  while (scoreWithAdvantage == score) {
+    score += Math.floor(Math.random() * 1) + 20;
+    scoreWithAdvantage += Math.floor(Math.random() * 1) + 20;
   }
+  // team1's score is scoreWithAdvantage
   if (team1['FIBARanking'] < team2['FIBARanking']) {
+    if (scoreWithAdvantage > score) {
+      assignMatchPoints(team1, 2, scoreWithAdvantage, score, team2['ISOCode']);
+      // if score difference more than 50, count as surrender
+      assignMatchPoints(
+        team2,
+        scoreWithAdvantage - score > surrenderValue ? 0 : 1,
+        score,
+        scoreWithAdvantage,
+        team1['ISOCode'],
+      );
+    }
     return (
       `${team1['ISOCode']}` +
       ` ${scoreWithAdvantage}` +
@@ -149,6 +200,18 @@ function oneGame(team1, team2) {
         scoreWithAdvantage > score ? `${team1['Team']}` : `${team2['Team']}`
       }` +
       ' WON'
+    );
+  }
+  // team2's score is scoreWithAdvantage
+  if (scoreWithAdvantage > score) {
+    assignMatchPoints(team2, 2, scoreWithAdvantage, score, team1['ISOCode']);
+    // if score difference more than 50, count as surrender
+    assignMatchPoints(
+      team1,
+      scoreWithAdvantage - score > surrenderValue ? 0 : 1,
+      score,
+      scoreWithAdvantage,
+      team2['ISOCode'],
     );
   }
   return (

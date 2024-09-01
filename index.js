@@ -313,6 +313,11 @@ function groupPhase(groups, teams) {
 // Sort groups based on points
 // if 2 teams have same amount of points, winner of the match between the two gets ranked higher
 // if 3 teams have same amount of points, then based on score difference
+// group 1st, 2nd and 3rd place of each group together
+// then sort them by
+// first: points
+// second: point difference
+// third: points scored
 
 function sortGroupResults(groups) {
   Object.keys(groups).forEach((groupName) => {
@@ -346,6 +351,69 @@ function sortGroupResults(groups) {
 
       // If score difference is equal, sort by points scored
       return b['Scored'] - a['Scored'];
+    });
+  });
+}
+
+function sortTeamsForPots(pot) {
+  pot.forEach(() => {
+    pot.sort((a, b) => {
+      // Sort by points
+      if (a['Points'] !== b['Points']) {
+        return b['Points'] - a['Points'];
+      }
+
+      // If three teams have equal points, sort by score difference
+      if (pot.filter((team) => team['Points'] === a['Points']).length === 3) {
+        if (a['ScoreDifference'] !== b['ScoreDifference']) {
+          return b['ScoreDifference'] - a['ScoreDifference'];
+        }
+      }
+      // If score difference is equal, sort by points scored
+      return b['Scored'] - a['Scored'];
+    });
+  });
+}
+
+function sortPots(groups) {
+  let rank1 = [];
+  let rank2 = [];
+  let rank3 = [];
+  Object.keys(groups).forEach((groupName) => {
+    let i = 0;
+    Object.keys(groups[groupName]).forEach((team) => {
+      // console.log(Object.keys(team).length);
+      if (i === 3) {
+        return;
+      }
+      if (i == 0) {
+        rank1.push(groups[groupName][team]);
+      }
+      if (i == 1) {
+        rank2.push(groups[groupName][team]);
+      }
+      if (i == 2) {
+        rank3.push(groups[groupName][team]);
+      }
+      i++;
+    });
+  });
+  // console.log(rank1);
+  sortTeamsForPots(rank1);
+  sortTeamsForPots(rank2);
+  sortTeamsForPots(rank3);
+
+  let potGroups = {
+    D: [rank1[0], rank1[1]],
+    E: [rank1[2], rank2[0]],
+    F: [rank2[1], rank2[2]],
+    G: [rank3[0], rank3[1]],
+  };
+  console.log('\nŠeširi:');
+  Object.keys(potGroups).forEach((pot) => {
+    console.log(`  Šešir ${pot}`);
+    potGroups[pot].forEach((team) => {
+      console.log(`    ${team['Team']}`);
     });
   });
 }
@@ -398,12 +466,6 @@ function printGroupResults(groups) {
   });
 }
 
-// group 1st, 2nd and 3rd place of each group together
-// then sort them by
-// first: points
-// second: point difference
-// third: points scored
-
 // rank them from 1-8, exclude 9th team
 
 // group them up in pairs of:
@@ -421,6 +483,9 @@ exibitionModifier(exibitions, teams);
 groupPhase(getGroupPhase(groups), teams);
 sortGroupResults(groups);
 printGroupResults(groups);
+let pots = sortPots(groups);
+
+// console.log(groups);
 // console.log(groups);
 // "ESP": {
 //   "Team": "Španija",

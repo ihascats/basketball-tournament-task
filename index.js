@@ -113,6 +113,47 @@ function teamRankingModifier(teams) {
     };
   });
 }
+
+function oneGame(team1, team2) {
+  let score = rollScore(4, 20, 10, false);
+  let scoreWithAdvantage = rollScore(4, 20, 10, true);
+  // return scoreWithAdvantage > score;
+  if (scoreWithAdvantage == score) {
+    return (
+      `${team1['ISOCode']}` +
+      ` ${scoreWithAdvantage}` +
+      ' ----- ' +
+      `${team2['ISOCode']}` +
+      ` ${score}` +
+      ' ----- ' +
+      ' DRAW'
+    );
+  }
+  if (team1['FIBARanking'] < team2['FIBARanking']) {
+    return (
+      `${team1['ISOCode']}` +
+      ` ${scoreWithAdvantage}` +
+      ' ----- ' +
+      `${team2['ISOCode']}` +
+      ` ${score}` +
+      ' ----- ' +
+      `${
+        scoreWithAdvantage > score ? `${team1['Team']}` : `${team2['Team']}`
+      }` +
+      ' WON'
+    );
+  }
+  return (
+    `${team1['ISOCode']}` +
+    ` ${score}` +
+    ' ----- ' +
+    `${team2['ISOCode']}` +
+    ` ${scoreWithAdvantage}` +
+    ' ----- ' +
+    `${scoreWithAdvantage < score ? `${team1['Team']}` : `${team2['Team']}`}` +
+    ' WON'
+  );
+}
 //console.log(groups["A"]);
 teamRankingModifier(teams);
 //  "CAN": {
@@ -136,6 +177,7 @@ teamRankingModifier(teams);
 //individualGroupPhase(groups["A"])
 console.log(exibitionModifier(exibitions, teams));
 console.log(teams);
+console.log(oneGame(teams['CAN'], teams['SRB']));
 // console.log(rollScore(5, 20));
 
 // score * rankMod = initialScore

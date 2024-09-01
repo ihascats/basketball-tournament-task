@@ -201,6 +201,7 @@ function oneGame(team1, team2) {
     modifiedScore += Math.floor(Math.random() * 20) + 1;
     modifiedScoreWithAdvantage += Math.floor(Math.random() * 20) + 1;
   }
+  let matchResult = [];
   if (modifiedScoreWithAdvantage > modifiedScore) {
     assignMatchPoints(
       teamOne,
@@ -217,6 +218,12 @@ function oneGame(team1, team2) {
       modifiedScoreWithAdvantage,
       teamOne['ISOCode'],
     );
+    if (matchResult['Winner'] && matchResult['Loser']) {
+      Object.assign(matchResult['Winner'], [teamOne['ISOCode']]);
+      Object.assign(matchResult['Loser'], [teamTwo['ISOCode']]);
+    } else {
+      matchResult = [teamOne['ISOCode'], teamTwo['ISOCode']];
+    }
   } else {
     assignMatchPoints(
       teamTwo,
@@ -233,13 +240,22 @@ function oneGame(team1, team2) {
       modifiedScore,
       teamTwo['ISOCode'],
     );
+    if (matchResult['Winner'] && matchResult['Loser']) {
+      Object.assign(matchResult['Winner'], [teamTwo['ISOCode']]);
+      Object.assign(matchResult['Loser'], [teamOne['ISOCode']]);
+    } else {
+      matchResult = [teamTwo['ISOCode'], teamOne['ISOCode']];
+    }
   }
-  return (
-    `${teamOne['Team'].length > 12 ? teamOne['ISOCode'] : teamOne['Team']}` +
-    ' - ' +
-    `${teamTwo['Team'].length > 10 ? teamTwo['ISOCode'] : teamTwo['Team']}` +
-    ` (${modifiedScoreWithAdvantage} : ${modifiedScore})`
+  console.log(
+    `    ${
+      teamOne['Team'].length > 12 ? teamOne['ISOCode'] : teamOne['Team']
+    }` +
+      ' - ' +
+      `${teamTwo['Team'].length > 12 ? teamTwo['ISOCode'] : teamTwo['Team']}` +
+      ` (${modifiedScoreWithAdvantage} : ${modifiedScore})`,
   );
+  return matchResult;
 }
 
 function getGroupPhase(groups) {
@@ -255,23 +271,58 @@ function getGroupPhase(groups) {
 }
 
 function groupPhase(groups, teams) {
+  // Object.keys(groups).forEach((groupName) => {
+  //   console.log("   Group " + groupName)
+  //   for(let i = 0; i < groups[groupName].length; i++){
+  //     for (let j = i + 1; j < groups[groupName].length; j++) {
+  //       console.log("    "+oneGame(teams[groups[groupName][i]], teams[groups[groupName][j]]));
+  //     }
+  //   }
+  // });
+  // Have initial matches
+
+  let matchResultTracker = {};
+  console.log('Grupna faza - I kolo:');
   Object.keys(groups).forEach((groupName) => {
-    console.log('   Group ' + groupName);
-    for (let i = 0; i < groups[groupName].length; i++) {
-      for (let j = i + 1; j < groups[groupName].length; j++) {
-        console.log(
-          '    ' +
-            oneGame(teams[groups[groupName][i]], teams[groups[groupName][j]]),
-        );
-      }
+    console.log('  Group ' + groupName);
+    matchResultTracker[groupName] = [];
+    for (let i = 0; i < groups[groupName].length; i += 2) {
+      matchResultTracker[groupName].push(
+        oneGame(teams[groups[groupName][i]], teams[groups[groupName][i + 1]]),
+      );
     }
+  });
+  console.log('Grupna faza - II kolo:');
+  Object.keys(matchResultTracker).forEach((groupName) => {
+    console.log('  Group ' + groupName);
+    // pick winners to play against winners and losers against losers from first round
+    oneGame(
+      teams[matchResultTracker[groupName][0][0]],
+      teams[matchResultTracker[groupName][1][0]],
+    );
+    oneGame(
+      teams[matchResultTracker[groupName][0][1]],
+      teams[matchResultTracker[groupName][1][1]],
+    );
+  });
+  console.log('Grupna faza - III kolo:');
+  Object.keys(matchResultTracker).forEach((groupName) => {
+    console.log('  Group ' + groupName);
+    // now pick winners from first round to play against losers from first round
+    oneGame(
+      teams[matchResultTracker[groupName][0][0]],
+      teams[matchResultTracker[groupName][1][1]],
+    );
+    oneGame(
+      teams[matchResultTracker[groupName][0][1]],
+      teams[matchResultTracker[groupName][1][0]],
+    );
   });
 }
 let teams = groupsToTeams(groups);
 teamRankingModifier(teams);
 exibitionModifier(exibitions, teams);
 groupPhase(getGroupPhase(groups), teams);
-
 // "ESP": {
 //   "Team": "Španija",
 //   "ISOCode": "ESP",

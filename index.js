@@ -81,13 +81,12 @@ function groupsToTeams(groups) {
       team['Scored'] = 0;
       team['OpponentScored'] = 0;
       team['ScoreDifference'] = 0;
+      team['Modifiers'] = {};
       teams[ISOCode] = team;
     });
   });
   return teams;
 }
-
-let teams = groupsToTeams(groups);
 
 function teamRankingModifier(teams) {
   let fibaRankingArray = [];
@@ -105,9 +104,9 @@ function teamRankingModifier(teams) {
 
   Object.keys(teams).forEach((key) => {
     const fibaRanking = teams[key]['FIBARanking'];
-    teams[key]['Modifiers'] = {
+    Object.assign(teams[key]['Modifiers'], {
       Ranking: (fibaRankingGap - fibaRanking) * 0.0025 + 1,
-    };
+    });
   });
 }
 
@@ -154,7 +153,6 @@ function assignMatchPoints(
   if (newPoints < 2) {
     Object.assign(team['Modifiers'], { [opponentISO]: 1 });
   }
-  console.log(team);
 }
 
 function applyModifiers(team, score, opponentISO) {
@@ -314,62 +312,38 @@ function getGroupPhase(groups) {
     });
     sortedGroups[group] = teamsArray;
   });
-  console.log(sortedGroups);
+  return sortedGroups;
 }
 
-function individualGroupPhase(groups) {
-  let size = groups.length;
-  for (let i = 0; i < size; i++) {
-    for (let j = i + 1; j < size; j++) {
-      console.log(`${i}` + `${j}`);
+function groupPhase(groups, teams) {
+  Object.keys(groups).forEach((groupName) => {
+    for (let i = 0; i < groups[groupName].length; i++) {
+      for (let j = i + 1; j < groups[groupName].length; j++) {
+        console.log(
+          oneGame(teams[groups[groupName][i]], teams[groups[groupName][j]]),
+        );
+      }
     }
-  }
+  });
 }
-
-getGroupPhase(groups);
-
-//console.log(groups["A"]);
+let teams = groupsToTeams(groups);
 teamRankingModifier(teams);
-//  "CAN": {
-//    "Team": "Kanada",
-//    "ISOCode": "CAN",
-//    "FIBARanking": 7
-//    "Modifiers" : {
-//      Exibition : {} add results from new matches | if its already included get avg of the two.
-//      Ranking : int
-//    }
-//    "Scores" : {
-//      groupPhase : int
-//      hatPhase : int
-//      eliminationPhase : int
-//      quarterFinals : int
-//      semiFinals : int
-//      thirdPlace : int
-//      finals : int
-//    }
-//  },
-//individualGroupPhase(groups["A"])
 exibitionModifier(exibitions, teams);
-// console.log(teams);
-console.log(oneGame(teams['CAN'], teams['SRB']));
-// console.log(rollScore(5, 20));
+groupPhase(getGroupPhase(groups), teams);
 
-// score * rankMod = initialScore
-// if theres exibMod
-// oppInitialScore * exibMod - oppInitialScore + score = finalMatchScore
-
-// const minRollValue
-// const maxRollValue
-// const rollTimes
-// rollScore(4, 20, 10, false)
-
-// function checkAdvantageChance(){
-//   let advantageCheck = 0
-//   for (let m = 0 ; m < 10000 ; m++) {
-//     if(oneGame(teams["CAN"], teams["SRB"])){
-//       advantageCheck++
-//     }
+// "ESP": {
+//   "Team": "Španija",
+//   "ISOCode": "ESP",
+//   "FIBARanking": 2,
+//   "Wins": 0,
+//   "Losses": 0,
+//   "Points": 0,
+//   "Scored": 0,
+//   "OpponentScored": 0,
+//   "ScoreDifference": 0,
+//   "Modifiers": {
+//     "Ranking": 1.08,
+//     "BRA": 1.0277777777777777,
+//     "PRI": 1.1369047619047619
 //   }
-//   return advantageCheck / 100
-// }
-//
+// },

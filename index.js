@@ -69,8 +69,35 @@ function groupsToTeams(groups) {
   return teams;
 }
 
+let teams = groupsToTeams(groups);
+
+function teamRankingModifier(teams) {
+  let fibaRankingArray = [];
+  // Create an array containing all fibaRanks
+  Object.keys(teams).forEach(function (key) {
+    const fibaRanking = teams[key]['FIBARanking'];
+    fibaRankingArray.push(fibaRanking);
+  });
+  // --------------------
+  // worst
+  const maxFIBARanking = Math.max(...fibaRankingArray);
+  // best
+  const minFIBARanking = Math.min(...fibaRankingArray);
+  const fibaRankingGap = maxFIBARanking - minFIBARanking;
+
+  Object.keys(teams).forEach(function (key) {
+    const fibaRanking = teams[key]['FIBARanking'];
+    teams[key]['Modifiers'] = {
+      Ranking: (fibaRankingGap - fibaRanking + 1) * 0.0025 + 1,
+    };
+  });
+  console.log(fibaRankingArray);
+  console.log(Math.max(...fibaRankingArray));
+  console.log(Math.min(...fibaRankingArray));
+}
 //console.log(groups["A"]);
-console.log(groupsToTeams(groups));
+teamRankingModifier(teams);
+console.log(teams);
 //  "CAN": {
 //    "Team": "Kanada",
 //    "ISOCode": "CAN",

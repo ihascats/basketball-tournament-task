@@ -469,12 +469,12 @@ function endGame(pots) {
   let pairsDG = pots[0];
   let pairsEF = pots[1];
   console.log('\nEliminaciona faza:');
-  pairsDG.forEach((team) => {
-    console.log('  ' + team[0]['Team'] + ' - ' + team[1]['Team']);
+  pairsDG.forEach((group) => {
+    console.log('  ' + group[0]['Team'] + ' - ' + group[1]['Team']);
   });
   console.log('');
-  pairsEF.forEach((team) => {
-    console.log('  ' + team[0]['Team'] + ' - ' + team[1]['Team']);
+  pairsEF.forEach((group) => {
+    console.log('  ' + group[0]['Team'] + ' - ' + group[1]['Team']);
   });
 
   let quarterfinalResults = [];
@@ -486,7 +486,44 @@ function endGame(pots) {
   pairsEF.forEach((team) => {
     quarterfinalResults.push(oneGame(team[0], team[1]));
   });
-  console.log(quarterfinalResults);
+
+  let semifinalResults = [];
+  let semifinalsPairs = [];
+  let semifinalMatches = [];
+
+  pairsDG.forEach((group) => {
+    group.forEach((team) => {
+      if (
+        team['ISOCode'] == quarterfinalResults[0][0] ||
+        team['ISOCode'] == quarterfinalResults[1][0]
+      ) {
+        semifinalsPairs.push(team);
+      }
+    });
+  });
+
+  semifinalMatches.push(semifinalsPairs);
+  semifinalsPairs = [];
+  pairsEF.forEach((group) => {
+    group.forEach((team) => {
+      if (
+        team['ISOCode'] == quarterfinalResults[2][0] ||
+        team['ISOCode'] == quarterfinalResults[3][0]
+      ) {
+        semifinalsPairs.push(team);
+      }
+    });
+  });
+
+  semifinalMatches.push(semifinalsPairs);
+  semifinalsPairs = [];
+  console.log('\nPolufinale:');
+  semifinalResults.push(
+    oneGame(semifinalMatches[0][0], semifinalMatches[0][1]),
+  );
+  semifinalResults.push(
+    oneGame(semifinalMatches[1][0], semifinalMatches[1][1]),
+  );
 }
 
 function centerText(text, width) {

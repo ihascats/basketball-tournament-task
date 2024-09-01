@@ -56,7 +56,7 @@ function rollScore(
   let rollSum = 0;
   let advantage = false;
   if (advantageChance) {
-    advantage = Math.random() >= 0.5 ? true : false;
+    advantage = Math.random() >= 0.9 ? true : false;
   }
   for (let i = 0; i < rolls; i++) {
     if (advantage) {
@@ -140,3 +140,8 @@ console.log(teams);
 // score * rankMod = initialScore
 // if theres exibMod
 // oppInitialScore * exibMod - oppInitialScore + score = finalMatchScore
+
+// const minRollValue
+// const maxRollValue
+// const rollTimes
+// rollScore(4, 20, 10, false)

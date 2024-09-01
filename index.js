@@ -115,8 +115,16 @@ function teamRankingModifier(teams) {
 }
 
 function oneGame(team1, team2) {
-  let score = rollScore(4, 20, 10, false);
-  let scoreWithAdvantage = rollScore(4, 20, 10, true);
+  const minimumRollValue = 4;
+  const maximumRollValue = 20;
+  const rollTimes = 10;
+  let score = rollScore(minimumRollValue, maximumRollValue, rollTimes, false);
+  let scoreWithAdvantage = rollScore(
+    minimumRollValue,
+    maximumRollValue,
+    rollTimes,
+    true,
+  );
   // return scoreWithAdvantage > score;
   if (scoreWithAdvantage == score) {
     return (
@@ -175,8 +183,8 @@ teamRankingModifier(teams);
 //    }
 //  },
 //individualGroupPhase(groups["A"])
-console.log(exibitionModifier(exibitions, teams));
-console.log(teams);
+exibitionModifier(exibitions, teams);
+// console.log(teams);
 console.log(oneGame(teams['CAN'], teams['SRB']));
 // console.log(rollScore(5, 20));
 

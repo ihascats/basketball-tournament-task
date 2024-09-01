@@ -6,7 +6,7 @@ const groups = JSON.parse(fs.readFileSync('groups.json', 'utf-8'));
 
 function exibitionModifier(obj, teams) {
   // ---------------
-  const exibitionsObject = obj; // needs to be a deep copy
+  const exibitionsObject = obj; // nvm its fine
   const size = Object.keys(exibitionsObject).length;
   let mods = {};
   // ---------------
@@ -166,7 +166,7 @@ function applyModifiers(team, score, opponentISO) {
   return Math.ceil(score * modifier);
 }
 
-function oneGame(team1, team2) {
+function oneGame(team1, team2, padding = 8) {
   let teamOne;
   let teamTwo;
 
@@ -248,7 +248,7 @@ function oneGame(team1, team2) {
     }
   }
   console.log(
-    `        ${
+    `${' '.repeat(padding)}${
       teamOne['Team'].length > 12 ? teamOne['ISOCode'] : teamOne['Team']
     }` +
       ' - ' +
@@ -420,6 +420,18 @@ function sortTeamsForPots(pot) {
   });
 }
 
+// rank them from 1-8, exclude 9th team
+
+// group them up in pairs of:
+// D: 1-2,
+// E: 3-4,
+// F: 5-6,
+// G: 7-8
+
+// Quarterfinals
+// Randomly match D and G teams, and E and F teams
+// teams that played against each other in the group phase cant do it again
+
 function sortPots(groups) {
   let rank1 = [];
   let rank2 = [];
@@ -480,11 +492,11 @@ function endGame(pots) {
   let quarterfinalResults = [];
   console.log('\nČetvrtfinale:');
   pairsDG.forEach((team) => {
-    quarterfinalResults.push(oneGame(team[0], team[1]));
+    quarterfinalResults.push(oneGame(team[0], team[1], 2));
   });
   console.log('');
   pairsEF.forEach((team) => {
-    quarterfinalResults.push(oneGame(team[0], team[1]));
+    quarterfinalResults.push(oneGame(team[0], team[1], 2));
   });
 
   let semifinalResults = [];
@@ -519,10 +531,10 @@ function endGame(pots) {
   semifinalsPairs = [];
   console.log('\nPolufinale:');
   semifinalResults.push(
-    oneGame(semifinalMatches[0][0], semifinalMatches[0][1]),
+    oneGame(semifinalMatches[0][0], semifinalMatches[0][1], 2),
   );
   semifinalResults.push(
-    oneGame(semifinalMatches[1][0], semifinalMatches[1][1]),
+    oneGame(semifinalMatches[1][0], semifinalMatches[1][1], 2),
   );
 
   let thirdPlaceTeams = [];
@@ -541,9 +553,9 @@ function endGame(pots) {
   let thirdPlace = [];
   let firstAndSecondPlace = [];
   console.log('\nUtakmica za treće mesto:');
-  thirdPlace.push(oneGame(thirdPlaceTeams[0], thirdPlaceTeams[1]));
+  thirdPlace.push(oneGame(thirdPlaceTeams[0], thirdPlaceTeams[1], 2));
   console.log('\nFinale:');
-  firstAndSecondPlace.push(oneGame(finalsTeams[0], finalsTeams[1]));
+  firstAndSecondPlace.push(oneGame(finalsTeams[0], finalsTeams[1], 2));
 
   console.log('\nMedalje');
   console.log(
@@ -617,17 +629,6 @@ function printGroupResults(groups) {
   });
 }
 
-// rank them from 1-8, exclude 9th team
-
-// group them up in pairs of:
-// D: 1-2,
-// E: 3-4,
-// F: 5-6,
-// G: 7-8
-
-// Quarterfinals
-// Randomly match D and G teams, and E and F teams
-// teams that played against each other in the group phase cant do it again
 let teams = groupsToTeams(groups);
 teamRankingModifier(teams);
 exibitionModifier(exibitions, teams);
@@ -635,22 +636,3 @@ groupPhase(getGroupPhase(groups), teams);
 sortGroupResults(groups);
 printGroupResults(groups);
 endGame(sortPots(groups));
-
-// console.log(groups);
-// console.log(groups);
-// "ESP": {
-//   "Team": "Španija",
-//   "ISOCode": "ESP",
-//   "FIBARanking": 2,
-//   "Wins": 0,
-//   "Losses": 0,
-//   "Points": 0,
-//   "Scored": 0,
-//   "OpponentScored": 0,
-//   "ScoreDifference": 0,
-//   "Modifiers": {
-//     "Ranking": 1.08,
-//     "BRA": 1.0277777777777777,
-//     "PRI": 1.1369047619047619
-//   }
-// },

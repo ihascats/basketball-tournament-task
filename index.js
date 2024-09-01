@@ -524,6 +524,49 @@ function endGame(pots) {
   semifinalResults.push(
     oneGame(semifinalMatches[1][0], semifinalMatches[1][1]),
   );
+
+  let thirdPlaceTeams = [];
+  let finalsTeams = [];
+  semifinalMatches.forEach((group, index) => {
+    group.forEach((team) => {
+      if (team['ISOCode'] == semifinalResults[index][1]) {
+        thirdPlaceTeams.push(team);
+      }
+      if (team['ISOCode'] == semifinalResults[index][0]) {
+        finalsTeams.push(team);
+      }
+    });
+  });
+
+  let thirdPlace = [];
+  let firstAndSecondPlace = [];
+  console.log('\nUtakmica za treće mesto:');
+  thirdPlace.push(oneGame(thirdPlaceTeams[0], thirdPlaceTeams[1]));
+  console.log('\nFinale:');
+  firstAndSecondPlace.push(oneGame(finalsTeams[0], finalsTeams[1]));
+
+  console.log('\nMedalje');
+  console.log(
+    `  1. ${
+      finalsTeams[0]['ISOCode'] == firstAndSecondPlace[0][0]
+        ? finalsTeams[0]['Team']
+        : finalsTeams[1]['Team']
+    }`,
+  );
+  console.log(
+    `  2. ${
+      finalsTeams[0]['ISOCode'] !== firstAndSecondPlace[0][1]
+        ? finalsTeams[1]['Team']
+        : finalsTeams[0]['Team']
+    }`,
+  );
+  console.log(
+    `  3. ${
+      thirdPlaceTeams[0]['ISOCode'] == thirdPlace[0][0]
+        ? thirdPlaceTeams[0]['Team']
+        : thirdPlaceTeams[1]['Team']
+    }`,
+  );
 }
 
 function centerText(text, width) {

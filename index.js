@@ -47,13 +47,26 @@ function exibitionModifier(obj, teams) {
   return mods;
 }
 
-function rollScore(minRoll = 1, maxRoll = int, advantage = false) {
-  if (advantage) {
-    let roll1 = Math.floor(Math.random() * maxRoll) + minRoll;
-    let roll2 = Math.floor(Math.random() * maxRoll) + minRoll;
-    return Math.max(roll1, roll2);
+function rollScore(
+  minRoll = 1,
+  maxRoll = int,
+  rolls = 1,
+  advantageChance = false,
+) {
+  let rollSum = 0;
+  let advantage = false;
+  if (advantageChance) {
+    advantage = Math.random() >= 0.5 ? true : false;
   }
-  return Math.floor(Math.random() * maxRoll) + 1;
+  for (let i = 0; i < rolls; i++) {
+    if (advantage) {
+      let roll1 = Math.floor(Math.random() * maxRoll) + minRoll;
+      let roll2 = Math.floor(Math.random() * maxRoll) + minRoll;
+      rollSum += Math.max(roll1, roll2);
+    }
+    rollSum += Math.floor(Math.random() * maxRoll) + 1;
+  }
+  return rollSum;
 }
 
 function individualGroupPhase(groups) {
@@ -90,12 +103,12 @@ function teamRankingModifier(teams) {
   const maxFIBARanking = Math.max(...fibaRankingArray);
   // best
   const minFIBARanking = Math.min(...fibaRankingArray);
-  const fibaRankingGap = maxFIBARanking - minFIBARanking;
+  const fibaRankingGap = maxFIBARanking - minFIBARanking + 1;
 
   Object.keys(teams).forEach((key) => {
     const fibaRanking = teams[key]['FIBARanking'];
     teams[key]['Modifiers'] = {
-      Ranking: (fibaRankingGap - fibaRanking + 1) * 0.0025 + 1,
+      Ranking: (fibaRankingGap - fibaRanking) * 0.0025 + 1,
     };
   });
 }
@@ -115,6 +128,7 @@ teamRankingModifier(teams);
 //      eliminationPhase : int
 //      quarterFinals : int
 //      semiFinals : int
+//      thirdPlace : int
 //      finals : int
 //    }
 //  },
@@ -123,5 +137,6 @@ console.log(exibitionModifier(exibitions, teams));
 console.log(teams);
 // console.log(rollScore(5, 20));
 
-// (oppScore * exibMod - oppScore) + score = exibModScore
-// exibModScore * rankMod = finalMatchScore
+// score * rankMod = initialScore
+// if theres exibMod
+// oppInitialScore * exibMod - oppInitialScore + score = finalMatchScore

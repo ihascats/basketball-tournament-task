@@ -309,10 +309,119 @@ function groupPhase(groups, teams) {
     );
   });
 }
+
+// Sort groups based on points
+// if 2 teams have same amount of points, winner of the match between the two gets ranked higher
+// if 3 teams have same amount of points, then based on score difference
+
+function sortGroupResults(groups) {
+  Object.keys(groups).forEach((groupName) => {
+    groups[groupName].sort((a, b) => {
+      // Sort by points
+      if (a['Points'] !== b['Points']) {
+        return b['Points'] - a['Points'];
+      }
+
+      // If three teams have equal points, sort by score difference
+      if (
+        groups[groupName].filter((team) => team['Points'] === a['Points'])
+          .length === 3
+      ) {
+        if (a['ScoreDifference'] !== b['ScoreDifference']) {
+          return b['ScoreDifference'] - a['ScoreDifference'];
+        }
+      }
+
+      // If two teams have equal points, sort by the outcome of the match
+      if (
+        groups[groupName].filter((team) => team['Points'] === a['Points'])
+          .length === 2
+      ) {
+        const aModifier = a['Modifiers'][b['ISOCode']] || 1;
+        const bModifier = b['Modifiers'][a['ISOCode']] || 1;
+        if (aModifier !== bModifier) {
+          return bModifier - aModifier;
+        }
+      }
+
+      // If score difference is equal, sort by points scored
+      return b['Scored'] - a['Scored'];
+    });
+  });
+}
+
+function centerText(text, width) {
+  const padding = Math.max(width - text.length, 0);
+  const padLeft = Math.floor(padding / 2);
+  const padRight = padding - padLeft;
+  return ' '.repeat(padLeft) + text + ' '.repeat(padRight);
+}
+
+function printGroupResults(groups) {
+  console.log('Konačan plasman u grupama:');
+
+  Object.keys(groups).forEach((groupName) => {
+    console.log(
+      `    Grupa ${groupName} (Ime - pobede/porazi/bodovi/postignuti koševi/primljeni koševi/koš razlika)::`,
+    );
+
+    groups[groupName].forEach((team, index) => {
+      const wins = team['Wins'];
+      const losses = team['Losses'];
+      const points = team['Points'];
+      const scored = team['Scored'];
+      const opponentScored = team['OpponentScored'];
+      const scoreDifference =
+        team['ScoreDifference'] >= 0
+          ? `+${team['ScoreDifference']}`
+          : team['ScoreDifference'];
+
+      // Determine the team name to display
+      const displayName =
+        team['Team'].length > 12 ? team['ISOCode'] : team['Team'];
+      const teamName = displayName.padEnd(12);
+
+      // Center the values
+      const winsStr = centerText(`${wins}`, 3);
+      const lossesStr = centerText(`${losses}`, 3);
+      const pointsStr = centerText(`${points}`, 3);
+      const scoredStr = centerText(`${scored}`, 5);
+      const opponentScoredStr = centerText(`${opponentScored}`, 5);
+      const scoreDiffStr = centerText(`${scoreDifference}`, 4);
+
+      console.log(
+        `        ${
+          index + 1
+        }. ${teamName} ${winsStr} / ${lossesStr} / ${pointsStr} / ${scoredStr} / ${opponentScoredStr} / ${scoreDiffStr}`,
+      );
+    });
+  });
+}
+
+// group 1st, 2nd and 3rd place of each group together
+// then sort them by
+// first: points
+// second: point difference
+// third: points scored
+
+// rank them from 1-8, exclude 9th team
+
+// group them up in pairs of:
+// D: 1-2,
+// E: 3-4,
+// F: 5-6,
+// G: 7-8
+
+// Quarterfinals
+// Randomly match D and G teams, and E and F teams
+// teams that played against each other in the group phase cant do it again
 let teams = groupsToTeams(groups);
 teamRankingModifier(teams);
 exibitionModifier(exibitions, teams);
 groupPhase(getGroupPhase(groups), teams);
+sortGroupResults(groups);
+printGroupResults(groups);
+// console.log(groups);
 // "ESP": {
 //   "Team": "Španija",
 //   "ISOCode": "ESP",

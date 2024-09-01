@@ -192,11 +192,6 @@ function oneGame(team1, team2) {
     true,
   );
 
-  // if draw
-  while (scoreWithAdvantage == score) {
-    score += Math.floor(Math.random() * 1) + 20;
-    scoreWithAdvantage += Math.floor(Math.random() * 1) + 20;
-  }
   // team1's score is scoreWithAdvantage
   if (team1['FIBARanking'] < team2['FIBARanking']) {
     let modifiedScoreWithAdvantage = applyModifiers(
@@ -205,7 +200,10 @@ function oneGame(team1, team2) {
       team2['ISOCode'],
     );
     let modifiedScore = applyModifiers(team2, score, team1['ISOCode']);
-
+    while (modifiedScoreWithAdvantage == modifiedScore) {
+      modifiedScore += Math.floor(Math.random() * 20) + 1;
+      modifiedScoreWithAdvantage += Math.floor(Math.random() * 20) + 1;
+    }
     if (modifiedScoreWithAdvantage > modifiedScore) {
       assignMatchPoints(
         team1,
@@ -262,6 +260,10 @@ function oneGame(team1, team2) {
     team1['ISOCode'],
   );
   let modifiedScore = applyModifiers(team1, score, team2['ISOCode']);
+  while (modifiedScoreWithAdvantage == modifiedScore) {
+    modifiedScore += Math.floor(Math.random() * 20) + 1;
+    modifiedScoreWithAdvantage += Math.floor(Math.random() * 20) + 1;
+  }
   if (modifiedScoreWithAdvantage > modifiedScore) {
     // Team2 scored more points
     assignMatchPoints(

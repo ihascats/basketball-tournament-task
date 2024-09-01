@@ -57,7 +57,20 @@ function individualGroupPhase(groups) {
   }
 }
 
-console.log(groups['A']);
-individualGroupPhase(groups['A']);
+function groupsToTeams(groups) {
+  let teams = {};
+  Object.keys(groups).forEach(function (key) {
+    groups[key].forEach(function (team) {
+      const ISOCode = team['ISOCode'];
+      console.log(ISOCode);
+      teams[ISOCode] = team;
+    });
+  });
+  return teams;
+}
+
+//console.log(groups["A"]);
+console.log(groupsToTeams(groups));
+//individualGroupPhase(groups["A"])
 // console.log(exibitionModifier(exibitions));
 // console.log(rollScore(5, 20));

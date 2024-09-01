@@ -15,25 +15,37 @@ function exibitionModifier(obj) {
     let results = exibitionsObject[Object.keys(exibitionsObject)[i]];
     const exibitionSize =
       exibitionsObject[Object.keys(exibitionsObject)[i]].length;
-    mods[team] = [];
+    mods[team] = {};
     // save positive modifiers
     for (let j = 0; j < exibitionSize; j++) {
       let matchResult = results[j]['Result'];
       let [num1, num2] = matchResult.split('-').map(Number);
       let mod = num1 / num2;
       if (mod > 1) {
-        mods[team].push({
-          Opponent: results[j]['Opponent'],
-          Modifier: mod,
-        });
+        mods[team][results[j]['Opponent']] = {
+          mod,
+        };
       }
     }
     //-------------
 
-    // delete empty arrays
-    if (mods[team].length < 1) {
-      delete mods[team];
-    }
+    // delete empty objects
+    Object.keys(mods).forEach((team) => {
+      // Check if the team has any valid modifiers
+      let hasValidModifiers = false;
+
+      // Check each opponent for the 'mod' property
+      Object.keys(mods[team]).forEach((opponent) => {
+        if (mods[team][opponent] && mods[team][opponent]['mod']) {
+          hasValidModifiers = true;
+        }
+      });
+
+      // If no valid modifiers are found, delete the team
+      if (!hasValidModifiers) {
+        delete mods[team];
+      }
+    });
     //-------------
   }
   return mods;
@@ -59,10 +71,9 @@ function individualGroupPhase(groups) {
 
 function groupsToTeams(groups) {
   let teams = {};
-  Object.keys(groups).forEach(function (key) {
-    groups[key].forEach(function (team) {
+  Object.keys(groups).forEach((key) => {
+    groups[key].forEach((team) => {
       const ISOCode = team['ISOCode'];
-      console.log(ISOCode);
       teams[ISOCode] = team;
     });
   });
@@ -74,7 +85,7 @@ let teams = groupsToTeams(groups);
 function teamRankingModifier(teams) {
   let fibaRankingArray = [];
   // Create an array containing all fibaRanks
-  Object.keys(teams).forEach(function (key) {
+  Object.keys(teams).forEach((key) => {
     const fibaRanking = teams[key]['FIBARanking'];
     fibaRankingArray.push(fibaRanking);
   });
@@ -85,19 +96,16 @@ function teamRankingModifier(teams) {
   const minFIBARanking = Math.min(...fibaRankingArray);
   const fibaRankingGap = maxFIBARanking - minFIBARanking;
 
-  Object.keys(teams).forEach(function (key) {
+  Object.keys(teams).forEach((key) => {
     const fibaRanking = teams[key]['FIBARanking'];
     teams[key]['Modifiers'] = {
       Ranking: (fibaRankingGap - fibaRanking + 1) * 0.0025 + 1,
     };
   });
-  console.log(fibaRankingArray);
-  console.log(Math.max(...fibaRankingArray));
-  console.log(Math.min(...fibaRankingArray));
 }
 //console.log(groups["A"]);
 teamRankingModifier(teams);
-console.log(teams);
+//console.log(teams);
 //  "CAN": {
 //    "Team": "Kanada",
 //    "ISOCode": "CAN",
@@ -116,5 +124,5 @@ console.log(teams);
 //    }
 //  },
 //individualGroupPhase(groups["A"])
-// console.log(exibitionModifier(exibitions));
+console.log(exibitionModifier(exibitions));
 // console.log(rollScore(5, 20));
